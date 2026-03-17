@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, User, Shield, History, Loader2, Trash2, Sparkles, ScrollText, Copy, Check } from 'lucide-react';
+import { Send, User, Shield, History, Loader2, Trash2, Sparkles, ScrollText, Copy, Check, Sun, Moon } from 'lucide-react';
 import { sendMessage } from './services/gemini';
 
 interface Message {
@@ -15,7 +15,12 @@ export default function App() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -75,125 +80,135 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col font-sans text-[#F5F5F5] selection:bg-[#D4AF37]/30 overflow-hidden" id="app-container">
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 overflow-hidden ${isDarkMode ? 'dark bg-[#1A1210] text-[#FDFCFB]' : 'bg-[#FDFCFB] text-[#2D2D2D]'}`} id="app-container">
       {/* Decorative Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div 
-          className="absolute inset-0 opacity-[0.07] grayscale mix-blend-overlay"
+          className="absolute inset-0 opacity-[0.03] grayscale mix-blend-multiply transition-opacity duration-500"
           style={{ 
             backgroundImage: `url('https://upload.wikimedia.org/wikipedia/commons/2/2f/Menelik_II_portrait.jpg')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center 20%',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-transparent to-[#050505]" />
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#1B4332] opacity-[0.1] blur-[140px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#D4AF37] opacity-[0.06] blur-[140px] rounded-full" />
+        <div className={`absolute inset-0 transition-colors duration-500 ${isDarkMode ? 'bg-gradient-to-b from-[#1A1210] via-transparent to-[#1A1210]' : 'bg-gradient-to-b from-[#FDFCFB] via-transparent to-[#FDFCFB]'}`} />
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[var(--accent-secondary)] opacity-[0.2] blur-[140px] rounded-full transition-colors duration-500" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[var(--accent-tertiary)] opacity-[0.1] blur-[140px] rounded-full transition-colors duration-500" />
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 glass px-6 md:px-12 py-5 flex items-center justify-between" id="header">
-        <div className="flex items-center gap-4" id="logo-container">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#D4AF37] to-[#F2D06B] flex items-center justify-center shadow-[0_0_25px_rgba(212,175,55,0.4)]" id="logo-icon">
-            <Shield size={22} className="text-[#050505]" />
+      <header className="sticky top-0 z-50 glass px-4 md:px-12 py-4 md:py-6 flex items-center justify-between" id="header">
+        <div className="flex items-center gap-3 md:gap-5" id="logo-container">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[var(--accent)] flex items-center justify-center shadow-xl rotate-3 transition-colors duration-500" id="logo-icon">
+            <Shield size={20} className={isDarkMode ? 'text-[#1A1210]' : 'text-[#FDFCFB]'} />
           </div>
           <div>
-            <h1 className="text-lg font-serif font-bold tracking-widest gold-gradient" id="app-title">
-              ADWA VICTORIA
+            <h1 className="text-lg md:text-xl font-serif font-bold tracking-tight coffee-gradient" id="app-title">
+              Adwa Victoria
             </h1>
-            <p className="text-[9px] text-[#A1A1AA] font-bold uppercase tracking-[0.3em]">
-              Imperial Archives • የአድዋ ድል
+            <p className="text-[8px] md:text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-[0.2em] transition-colors duration-500">
+              Imperial Historian • የአድዋ ድል
             </p>
           </div>
         </div>
-        <button
-          onClick={clearChat}
-          className="p-2.5 text-[#A1A1AA] hover:text-[#F5F5F5] hover:bg-white/5 rounded-full transition-all duration-300 active:scale-90 border border-transparent hover:border-white/10"
-          title="Clear archives"
-          id="clear-chat-btn"
-        >
-          <Trash2 size={18} />
-        </button>
+        <div className="flex items-center gap-2 md:gap-3">
+          <button
+            onClick={toggleTheme}
+            className="p-2 md:p-3 text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/5 rounded-2xl transition-all duration-300 active:scale-90 border border-transparent hover:border-[var(--accent)]/10"
+            title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            id="theme-toggle-btn"
+          >
+            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button
+            onClick={clearChat}
+            className="p-2 md:p-3 text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/5 rounded-2xl transition-all duration-300 active:scale-90 border border-transparent hover:border-[var(--accent)]/10"
+            title="Clear archives"
+            id="clear-chat-btn"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
       </header>
 
       {/* Messages Area */}
-      <main className="flex-1 overflow-y-auto px-4 md:px-8 py-12" id="messages-area">
+      <main className="flex-1 overflow-y-auto px-4 md:px-8 py-8 md:py-16" id="messages-area">
         <div className="max-w-7xl mx-auto w-full">
           <AnimatePresence mode="wait">
             {messages.length === 0 ? (
               <motion.div
                 key="empty"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="h-[60vh] flex flex-col items-center justify-center text-center space-y-12"
+                className="h-[60vh] flex flex-col items-center justify-center text-center space-y-10 md:space-y-16"
                 id="empty-state"
               >
                 <div className="relative group" id="empty-icon-wrapper">
-                  <div className="absolute inset-0 bg-[#D4AF37] blur-[80px] opacity-10 group-hover:opacity-25 transition-opacity duration-700 rounded-full" />
-                  <div className="relative w-28 h-28 glass rounded-full flex items-center justify-center text-[#D4AF37] shadow-2xl border border-white/10 group-hover:border-[#D4AF37]/30 transition-colors duration-500" id="empty-icon">
-                    <ScrollText size={48} strokeWidth={1} className="group-hover:scale-110 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-[var(--accent)] blur-[80px] md:blur-[100px] opacity-5 group-hover:opacity-10 transition-opacity duration-700 rounded-full" />
+                  <div className="relative w-24 h-24 md:w-32 md:h-32 bg-[var(--card)] rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center text-[var(--accent)] shadow-2xl border border-[var(--accent)]/5 group-hover:border-[var(--accent)]/20 transition-all duration-500 rotate-[-5deg] group-hover:rotate-0" id="empty-icon">
+                    <ScrollText size={40} strokeWidth={1} className="md:w-14 md:h-14 group-hover:scale-110 transition-transform duration-500" />
                   </div>
                 </div>
                 
-                <div className="space-y-8 max-w-3xl">
-                  <h2 className="text-6xl md:text-8xl font-serif font-light tracking-tighter leading-none" id="empty-title">
-                    The Spirit of <span className="italic font-medium gold-gradient">Adwa</span>
+                <div className="space-y-6 md:space-y-10 max-w-4xl">
+                  <h2 className="text-5xl md:text-9xl font-serif font-bold tracking-tighter leading-[0.85] text-[var(--accent)]" id="empty-title">
+                    The Spirit of <span className="italic font-medium text-[var(--accent-tertiary)]">Adwa</span>
                   </h2>
-                  <div className="space-y-6">
-                    <p className="text-[#A1A1AA] text-xl md:text-2xl font-light leading-relaxed font-serif italic px-4" id="empty-description-en">
-                      "Welcome, seeker of truth. I am here to share the glorious history of the 1896 Battle of Adwa. Ask me about Menelik II, Empress Taytu, or the strategies that secured our independence."
+                  <div className="space-y-4 md:space-y-8">
+                    <p className="text-[var(--text-muted)] text-lg md:text-3xl font-light leading-relaxed font-serif italic px-4 max-w-2xl mx-auto" id="empty-description-en">
+                      "I am here to share the glorious history of the 1896 Battle of Adwa. Ask me about the strategies that secured our independence."
                     </p>
-                    <p className="text-[#A1A1AA]/50 text-lg font-light leading-relaxed px-4" id="empty-description-am">
-                      እንኳን ደህና መጡ! ስለ 1888 ዓ.ም የአድዋ ጦርነት ታሪክ ልነግርዎ ዝግጁ ነኝ። ስለ ዳግማዊ አፄ ምኒልክ፣ ስለ እቴጌ ጣይቱ ወይም ስለ ድሉ ስልቶች ይጠይቁኝ።
+                    <p className="text-[var(--text-muted)]/60 text-base md:text-xl font-light leading-relaxed px-4" id="empty-description-am">
+                      ስለ 1888 ዓ.ም የአድዋ ጦርነት ታሪክ ልነግርዎ ዝግጁ ነኝ።
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6 pt-12" id="ethiopian-accents">
-                  <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#1B4332] to-[#1B4332]" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#D4AF37] animate-pulse" />
-                  <div className="w-16 h-[1px] bg-gradient-to-l from-transparent via-[#9B2226] to-[#9B2226]" />
+                <div className="flex items-center gap-6 md:gap-8 pt-8 md:pt-16" id="ethiopian-accents">
+                  <div className="w-12 md:w-20 h-[1px] bg-[var(--accent-secondary)]" />
+                  <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[var(--accent)] shadow-lg" />
+                  <div className="w-12 md:w-20 h-[1px] bg-[var(--accent-secondary)]" />
                 </div>
               </motion.div>
             ) : (
-              <div className="space-y-12 pb-32">
+              <div className="space-y-10 md:space-y-16 pb-32 md:pb-40">
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`flex gap-6 ${message.role === 'assistant' ? 'items-start' : 'items-start flex-row-reverse'}`}
+                    className={`flex gap-4 md:gap-8 ${message.role === 'assistant' ? 'items-start' : 'items-start flex-row-reverse'}`}
                     id={`message-${message.id}`}
                   >
-                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-500 ${
+                    <div className={`flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-500 ${
                       message.role === 'assistant' 
-                        ? 'bg-[#111111] border-[#D4AF37]/30 text-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.15)]' 
-                        : 'bg-[#1B4332]/20 border-[#1B4332]/40 text-[#1B4332]'
+                        ? 'bg-[var(--accent)] text-[var(--bg)] shadow-xl rotate-3' 
+                        : 'bg-[var(--accent-secondary)] text-[var(--accent)] rotate-[-3deg]'
                     }`} id={`avatar-${message.id}`}>
-                      {message.role === 'assistant' ? <Shield size={18} /> : <User size={18} />}
+                      {message.role === 'assistant' ? <Shield size={18} className="md:w-[22px] md:h-[22px]" /> : <User size={18} className="md:w-[22px] md:h-[22px]" />}
                     </div>
                     
-                    <div className={`flex-1 max-w-[90%] md:max-w-[80%] space-y-3 ${message.role === 'user' ? 'text-right' : ''}`} id={`content-${message.id}`}>
-                      <div className="flex items-center justify-between px-2">
-                        <div className={`text-[9px] font-bold uppercase tracking-[0.3em] opacity-40`} id={`role-${message.id}`}>
+                    <div className={`flex-1 max-w-[85%] md:max-w-[75%] space-y-2 md:space-y-4 ${message.role === 'user' ? 'text-right' : ''}`} id={`content-${message.id}`}>
+                      <div className="flex items-center justify-between px-2 md:px-3">
+                        <div className={`text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-muted)]`} id={`role-${message.id}`}>
                           {message.role === 'assistant' ? 'Imperial Historian' : 'Inquirer'}
                         </div>
                         {message.role === 'assistant' && (
                           <button 
                             onClick={() => copyToClipboard(message.content, message.id)}
-                            className="text-[#A1A1AA] hover:text-[#D4AF37] transition-colors p-1"
+                            className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors p-1 rounded-lg hover:bg-[var(--accent)]/5"
                             title="Copy message"
                           >
-                            {copiedId === message.id ? <Check size={14} /> : <Copy size={14} />}
+                            {copiedId === message.id ? <Check size={14} className="md:w-4 md:h-4" /> : <Copy size={14} className="md:w-4 md:h-4" />}
                           </button>
                         )}
                       </div>
-                      <div className={`p-6 md:p-8 rounded-3xl leading-relaxed text-[17px] md:text-[18px] font-light shadow-2xl ${
+                      <div className={`p-5 md:p-10 rounded-2xl md:rounded-[2.5rem] leading-relaxed text-[16px] md:text-[20px] font-light shadow-xl transition-colors duration-500 ${
                         message.role === 'assistant' 
-                          ? 'glass-dark text-[#F5F5F5] font-serif prose-custom' 
-                          : 'bg-white/[0.03] text-[#F5F5F5] border border-white/5'
+                          ? 'bg-[var(--card)] text-[var(--text)] font-serif prose-custom border border-[var(--accent)]/5' 
+                          : 'bg-[var(--accent)] text-[var(--bg)] shadow-[0_10px_20px_rgba(78,52,46,0.15)]'
                       }`} id={`text-${message.id}`}>
                         {message.content}
                       </div>
@@ -205,16 +220,16 @@ export default function App() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex gap-6 items-start"
+                    className="flex gap-4 md:gap-8 items-start"
                     id="loading-indicator"
                   >
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#111111] border border-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center shadow-lg" id="loading-avatar">
-                      <Shield size={18} className="animate-pulse" />
+                    <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-[var(--accent)] text-[var(--bg)] flex items-center justify-center shadow-xl rotate-3" id="loading-avatar">
+                      <Shield size={18} className="md:w-[22px] md:h-[22px] animate-pulse" />
                     </div>
-                    <div className="flex-1 pt-2">
-                      <div className="flex items-center gap-4 text-[#A1A1AA] text-base font-light italic font-serif">
-                        <Loader2 size={16} className="animate-spin text-[#D4AF37]" />
-                        Consulting the imperial archives...
+                    <div className="flex-1 pt-2 md:pt-3">
+                      <div className="flex items-center gap-3 md:gap-5 text-[var(--text-muted)] text-base md:text-lg font-light italic font-serif">
+                        <Loader2 size={16} className="md:w-5 md:h-5 animate-spin text-[var(--accent)]" />
+                        Consulting archives...
                       </div>
                     </div>
                   </motion.div>
@@ -227,42 +242,42 @@ export default function App() {
       </main>
 
       {/* Input Area */}
-      <footer className="p-6 md:p-10 glass border-t-0 mt-auto" id="footer">
+      <footer className="p-4 sm:p-8 md:p-12 glass border-t-0 mt-auto" id="footer">
         <form
           onSubmit={handleSend}
           className="max-w-7xl mx-auto relative group"
           id="input-form"
         >
-          <div className="absolute -inset-1 bg-gradient-to-r from-[#D4AF37]/30 to-[#1B4332]/30 rounded-[2.5rem] blur-md opacity-0 group-focus-within:opacity-100 transition duration-700" />
+          <div className="absolute -inset-1 sm:-inset-2 bg-[var(--accent)]/5 rounded-[2rem] sm:rounded-[3rem] blur-xl opacity-0 group-focus-within:opacity-100 transition duration-700" />
           <div className="relative flex items-center">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Seek knowledge... / ስለ አድዋ ይጠይቁ..."
-              className="w-full bg-[#111111]/80 border border-white/10 rounded-[2rem] py-6 pl-10 pr-24 focus:border-[#D4AF37]/60 focus:bg-[#111111] transition-all duration-500 outline-none text-[#F5F5F5] placeholder-[#A1A1AA]/30 shadow-3xl text-lg font-light"
+              className="w-full bg-[var(--input-bg)] border border-[var(--accent)]/10 rounded-[1.5rem] sm:rounded-[2.5rem] py-4 sm:py-8 pl-6 sm:pl-12 pr-16 sm:pr-28 focus:border-[var(--accent)]/30 focus:shadow-2xl transition-all duration-500 outline-none text-[var(--text)] placeholder-[var(--text-muted)]/40 shadow-xl text-base sm:text-xl font-light"
               disabled={isLoading}
               id="chat-input"
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className={`absolute right-4 p-4 rounded-2xl transition-all duration-500 shadow-2xl ${
+              className={`absolute right-2 sm:right-5 p-3 sm:p-5 rounded-xl sm:rounded-2xl transition-all duration-500 shadow-2xl ${
                 input.trim() && !isLoading
-                  ? 'bg-[#D4AF37] text-[#050505] hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(212,175,55,0.5)]'
-                  : 'bg-white/5 text-[#A1A1AA]/20'
+                  ? 'bg-[var(--accent)] text-[var(--bg)] hover:scale-105 active:scale-95 shadow-[0_10px_20px_rgba(78,52,46,0.2)]'
+                  : 'bg-[var(--accent-secondary)] text-[var(--accent)]/30'
               }`}
               id="send-btn"
             >
-              <Send size={24} strokeWidth={2} />
+              <Send size={20} className="sm:w-7 sm:h-7" strokeWidth={2} />
             </button>
           </div>
         </form>
         
-        <div className="mt-8 flex justify-center items-center gap-8 opacity-10" id="footer-accents">
-          <div className="h-[1px] w-32 bg-gradient-to-r from-transparent to-white" />
-          <Sparkles size={14} />
-          <div className="h-[1px] w-32 bg-gradient-to-l from-transparent to-white" />
+        <div className="mt-10 flex justify-center items-center gap-10 opacity-20" id="footer-accents">
+          <div className="h-[1px] w-40 bg-gradient-to-r from-transparent to-[var(--accent)]" />
+          <Sparkles size={18} className="text-[var(--accent)]" />
+          <div className="h-[1px] w-40 bg-gradient-to-l from-transparent to-[var(--accent)]" />
         </div>
       </footer>
     </div>
